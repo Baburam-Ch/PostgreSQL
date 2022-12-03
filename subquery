@@ -1,0 +1,149 @@
+-- create table employee (
+-- 	emp_id int primary key, 
+-- 	emp_name varchar(50) not null,
+-- 	dept_name varchar(50) not null, 
+-- 	salary int not null
+-- );
+
+
+-- insert into employee (emp_id, emp_name, dept_name, salary) values
+-- 	(101, 'Mohan', 'Admin', 4000),
+-- 	(102, 'Rajkumar', 'HR', 3000),
+-- 	(103, 'Akbar', 'IT', 4000),
+-- 	(104, 'Dorvin', 'Finance', 6500),
+-- 	(105, 'Rohit', 'HR', 3000),
+-- 	(106, 'Rajesh', 'Finance', 5000);
+	
+	insert into employee (emp_id, emp_name, dept_name, salary) values
+		(107, 'Dorvin', 'Finance', 6500),
+		(108, 'Satya', 'Finance', 6500),
+		(109, 'Cory', 'HR', 8000),
+		(110, 'Manoj', 'Admin', 5000),
+		(111, 'Dheeraj', 'IT', 11000)
+		
+create table department (
+	dept_id int primary key, 
+	dept_name varchar(30) not null, 
+	location varchar(30) not null
+);
+
+insert into department (dept_id, dept_name, location) values
+	(1, 'Admin', 'Bangalore'),
+	(2, 'HR', 'Bangalore'),
+	(3, 'IT', 'Bangalore'),
+	(4, 'Finance', 'Mumbai'),
+	(5, 'Marketing', 'Bangalore'),
+	(6, 'Sales', 'Mumbai')
+
+-- select * from employee;
+
+-- What is a Sub-Query? How does SQL process a statement containing sub-query?
+
+/* QUESTION: Find the employees who's salary is more than the average salary earned
+	by all employee. */
+	
+1) Find the avg salary
+2) Filter the employees based on the above result.
+
+select avg(salary) from employee;
+select * from employee where -- outer query/main query
+	salary > (select avg(salary) from employee); -- subquery/inner query
+	
+Types of subquery:
+1) Scalar subquery\
+2) Multiple row subquery
+	-- multiple columns, multiple rows
+	-- single column, multiple rows.
+3) Correlated subquery
+
+1) Scalary subquery: it will always returns one row and one column.
+select * from employee e join (select avg(salary) sal from employee) avg_salary 
+	on e.salary > avg_salary.sal
+
+select e.* from employee e join (select avg(salary) sal from employee) avg_salary 
+	on e.salary > avg_salary.sal
+	
+2) Multiple row subquery:
+	-- subquery which returns multiple columns and multiple rows.
+	-- subquery which returns only 1 column and multiple rows.
+
+/* QUESTION: Find the employees who earn the highest salary in each department. */
+
+select dept_name, max(salary)
+from employee 
+group by dept_name
+
+select * from employee
+where (dept_name, salary) in (
+					select dept_name, max(salary) from employee 
+					group by dept_name
+					); -- inner subquery is independent of the outer subquery,
+					-- or it can be executed independently.
+					-- it returns multiple columns and multiple rows.
+					
+-- single column, multiple row subquery.
+/* QUESTION: Find department who do not have any employees */
+
+select * 
+from department
+where dept_name 
+	not in (select distinct dept_name from employee);
+	-- the subquery returns single column and multiple rows.
+
+select distinct dept_name from employee
+  
+
+
+3) Correlated subquery: By the name suggest, it is a subquery that is related
+	with the outer query.
+	
+/* QUESTION: Find the employees in each department who earn more than the
+			 average salary in that department. */
+
+select dept_name, avg(salary) from employee group by dept_name
+
+select avg(salary) from employee where dept_name = 'specific_dept'
+
+select * 
+from employee e1
+where salary > (select avg(salary)
+			   from employee e2
+			   where e2.dept_name = e1.dept_name)
+
+/* QUESTION: Find department who do not have any employees. */
+
+select *
+from department d
+where not exists (select 1 from employee e where e.dept_name = d.dept_name)
+	-- when inner subquery return nothing 'not exists' becomes true, and
+	-- the row associated with outer query is displayed.
+	-- and when inner subquery return something 'not exists' becomes false and
+	-- outer query displays nothing.
+	
+select 1 from employee e where e.dept_name = 'Sales'
+
+--------------------------------------------------------------------
+create table sales (
+	store_id int primary key,
+	store_name varchar(50) not null, 
+	product_name varchar(50) not null, 
+	quantity int not null,
+	prince int not null
+)
+
+-- renaming the column name
+alter table sales
+rename column prince to price; 
+
+insert into sales (store_id, store_name, product_name, quantity, price) values
+
+	(1, 'Apple Store 1', 'iPhone 13 Pro', 1, 1000),
+	(2, 'Apple Store 1', 'MacBook pro 14', 3, 6000),
+	(3, 'Apple Store 1', 'AirPods Pro', 2, 500),
+	(4, 'Apple Store 2', 'iPhone 13 Pro', 2, 2000),
+	(5, 'Apple Store 3', 'iPhone 12 Pro', 1, 750),
+	(6, 'Apple Store 3', 'MacBook pro 14', 1, 2000)
+	
+select * from sales
+
+-- Subquery inside a Subquery
